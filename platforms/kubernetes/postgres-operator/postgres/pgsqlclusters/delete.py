@@ -315,7 +315,8 @@ def delete_services(
     status: kopf.Status,
     logger: logging.Logger,
 ) -> None:
-    autofailover_machines = spec.get(AUTOFAILOVER).get(MACHINES)
+    autofailover_spec = spec.get(AUTOFAILOVER)
+    autofailover_machines = autofailover_spec.get(MACHINES) if autofailover_spec else None
     # k8s mode
     if autofailover_machines == None:
         core_v1_api = client.CoreV1Api()

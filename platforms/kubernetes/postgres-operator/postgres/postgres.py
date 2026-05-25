@@ -44,7 +44,10 @@ def startup(settings: kopf.OperatorSettings, **_kwargs):
     # setting the number of synchronous workers used by the operator for synchronous handlers
     settings.execution.max_workers = 1000
 
-    settings.peering.clusterwide = True
+    if operator_config.NAMESPACE_OVERRIDE.strip():
+        settings.watching.namespaces = [operator_config.NAMESPACE_OVERRIDE.strip()]
+    else:
+        settings.peering.clusterwide = True
 
     if not operator_config.TESTING:
         # TODO start prometheus and other

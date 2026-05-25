@@ -425,6 +425,7 @@ def in_disaster_backup(
     if spec.get(SPEC_DISASTERBACKUP,
                 {}).get(SPEC_DISASTERBACKUP_ENABLE) == True:
         return True
+    return False
 
 
 def waiting_postgresql_ready(
@@ -684,15 +685,15 @@ def get_realimage_from_env(yaml_image: str) -> str:
     #  res[0] is registry
     #  res[1] is namespace
     #  res[2] is image and tag
-    # if IMAGE_REGISTRY, NAMESPACE_OVERRIDE exists, replace registry, namespace
+    # if IMAGE_REGISTRY, IMAGE_NAMESPACE exists, replace registry, namespace
     for i in range(3 - len(image_list)):
         res.append("")
     res.extend(image_list)
 
     if operator_config.IMAGE_REGISTRY.strip():
         res[0] = operator_config.IMAGE_REGISTRY
-    if operator_config.NAMESPACE_OVERRIDE.strip():
-        res[1] = operator_config.NAMESPACE_OVERRIDE
+    if operator_config.IMAGE_NAMESPACE.strip():
+        res[1] = operator_config.IMAGE_NAMESPACE
     elif len(image_list) == 1:
         res[1] = "library"
 
@@ -1431,14 +1432,15 @@ def connections(
 
     conns: InstanceConnections = InstanceConnections()
     if len(field.split(FIELD_DELIMITER)) == 1:
-        machines = spec.get(AUTOFAILOVER).get(MACHINES)
+        autofailover_spec = spec.get(AUTOFAILOVER)
+        machines = autofailover_spec.get(MACHINES) if autofailover_spec else None
         role = AUTOFAILOVER
     else:
         if len(field.split(FIELD_DELIMITER)) != 2:
             raise kopf.PermanentError(
                 "error parse field, only support one '-'" + field)
-        machines = spec.get(field.split(FIELD_DELIMITER)[0]).get(
-            field.split(FIELD_DELIMITER)[1]).get(MACHINES)
+        parent_spec = spec.get(field.split(FIELD_DELIMITER)[0])
+        machines = parent_spec.get(field.split(FIELD_DELIMITER)[1]).get(MACHINES) if parent_spec else None
         role = POSTGRESQL
 
     if machines == None:

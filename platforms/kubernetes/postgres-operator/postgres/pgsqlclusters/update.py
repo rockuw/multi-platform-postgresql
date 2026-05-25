@@ -268,13 +268,15 @@ def rolling_update(
         else:
             pgsql_delete.delete_autofailover(meta, spec, patch, status, logger,
                                              field, None, [0, 1], False)
+            size = None
             for vct in spec.get(AUTOFAILOVER).get(VOLUMECLAIMTEMPLATES):
                 if vct["metadata"]["name"] == POSTGRESQL_PVC_NAME:
                     size = get_vct_size(vct)
-            pgsql_util.resize_pvc(
-                meta, spec, patch, status, logger,
-                pgsql_util.get_pvc_name(
-                    pgsql_util.get_pod_name(meta["name"], field, 0)), size)
+            if size is not None:
+                pgsql_util.resize_pvc(
+                    meta, spec, patch, status, logger,
+                    pgsql_util.get_pvc_name(
+                        pgsql_util.get_pod_name(meta["name"], field, 0)), size)
         pgsql_create.create_autofailover(
             meta, spec, patch, status, logger,
             pgsql_util.get_autofailover_labels(meta))
@@ -309,15 +311,17 @@ def rolling_update(
                     meta, spec, patch, status, logger, field, None,
                     [replica, replica + 1], delete_disk)
                 if delete_disk == False:
+                    size = None
                     for vct in spec.get(POSTGRESQL).get(READWRITEINSTANCE).get(
                             VOLUMECLAIMTEMPLATES):
                         if vct["metadata"]["name"] == POSTGRESQL_PVC_NAME:
                             size = get_vct_size(vct)
-                    pgsql_util.resize_pvc(
-                        meta, spec, patch, status, logger,
-                        pgsql_util.get_pvc_name(
-                            pgsql_util.get_pod_name(meta["name"], field,
-                                                    replica)), size)
+                    if size is not None:
+                        pgsql_util.resize_pvc(
+                            meta, spec, patch, status, logger,
+                            pgsql_util.get_pvc_name(
+                                pgsql_util.get_pod_name(meta["name"], field,
+                                                        replica)), size)
                 pgsql_create.create_postgresql_readwrite(
                     meta, spec, patch, status, logger,
                     pgsql_util.get_readwrite_labels(meta), replica, False,
@@ -355,15 +359,17 @@ def rolling_update(
                     meta, spec, patch, status, logger, field, None,
                     [replica, replica + 1], delete_disk)
                 if delete_disk == False:
+                    size = None
                     for vct in spec.get(POSTGRESQL).get(READONLYINSTANCE).get(
                             VOLUMECLAIMTEMPLATES):
                         if vct["metadata"]["name"] == POSTGRESQL_PVC_NAME:
                             size = get_vct_size(vct)
-                    pgsql_util.resize_pvc(
-                        meta, spec, patch, status, logger,
-                        pgsql_util.get_pvc_name(
-                            pgsql_util.get_pod_name(meta["name"], field,
-                                                    replica)), size)
+                    if size is not None:
+                        pgsql_util.resize_pvc(
+                            meta, spec, patch, status, logger,
+                            pgsql_util.get_pvc_name(
+                                pgsql_util.get_pod_name(meta["name"], field,
+                                                        replica)), size)
                 pgsql_create.create_postgresql_readonly(
                     meta, spec, patch, status, logger,
                     pgsql_util.get_readonly_labels(meta), replica, replica + 1)

@@ -22,6 +22,7 @@ class Config:
     DATA_PATH_AUTOFAILOVER: str = os.path.join(DATA_PATH, AUTOFAILOVER)
     DATA_PATH_POSTGRESQL: str = os.path.join(DATA_PATH, POSTGRESQL)
     IMAGE_REGISTRY: str = ""
+    IMAGE_NAMESPACE: str = ""
     NAMESPACE_OVERRIDE: str = ""
 
     def __init__(self, *, prefix: str):
@@ -118,6 +119,10 @@ class Config:
         # IMAGE_REGISTRY
         self.IMAGE_REGISTRY = self.env("IMAGE_REGISTRY",
                                        default=self.IMAGE_REGISTRY)
+
+        # IMAGE_NAMESPACE
+        self.IMAGE_NAMESPACE = self.env("IMAGE_NAMESPACE",
+                                        default=self.IMAGE_NAMESPACE)
 
         # NAMESPACE_OVERRIDE
         self.NAMESPACE_OVERRIDE = self.env("NAMESPACE_OVERRIDE",
