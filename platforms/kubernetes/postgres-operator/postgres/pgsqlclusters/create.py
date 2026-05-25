@@ -231,7 +231,7 @@ def create_statefulset(
         if container[
                 CONTAINER_NAME] == PODSPEC_CONTAINERS_POSTGRESQL_CONTAINER:
             container["args"] = ["auto_failover"]
-            container["env"] = env
+            container["env"] = container.get(CONTAINER_ENV, []) + env
             container["livenessProbe"] = {
                 "initialDelaySeconds": 20,
                 "periodSeconds": 5,
